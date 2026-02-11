@@ -1,0 +1,212 @@
+<!-- Header: top navigation and branding for the app -->
+<header class="header">
+  <!-- Logo container: clickable area to refresh or navigate home -->
+  <div class="header__logo" (click)="refresh()">
+    <!-- Site title and logo image; cursor pointer indicates interactivity -->
+    <h1 class="logo__text" style="cursor:pointer;">
+      <img src="/assets/images/MedIQ_icon.svg" alt="logo" style="cursor:pointer;" />
+    </h1>
+  </div>
+
+  <!-- Help area: contains a button to open the user guide or help modal -->
+  <div class="header__help">
+    <button class="help-btn" type="button" aria-label="Open user guide" (click)="openUserGuide()">
+      <!-- Icon-only button; title provides accessible tooltip -->
+      <span class="material-icons" aria-hidden="true" title="User Guide">help_outline</span>
+    </button>
+  </div>
+</header>
+
+<!-- Main content region: primary landmark for screen readers -->
+<main class="content" role="main">
+  <!-- Hero section: main search UI and quick actions -->
+  <section class="hero" aria-labelledby="hero-title">
+    <!-- Page heading for the feature -->
+    <h1 id="hero-title" class="title">Ask MedIQ</h1>
+
+    <!-- Search form: handles user queries; uses Angular form binding and submit handler -->
+    <form class="search" (ngSubmit)="onSubmit()" #searchForm="ngForm" novalidate>
+      <!-- Search input: bound to component query model; required for submission -->
+      <input id="q" name="q" #qInput type="search" [(ngModel)]="query" placeholder="Type your Question"
+        autocomplete="off" required aria-required="true" />
+
+      <!-- Submit button: disabled while loading to prevent duplicate requests -->
+      <button id="searchBtn" type="submit" class="search-btn" aria-label="Search" [disabled]="loading">
+        <span class="material-icons search-btn" aria-hidden="true">send</span>
+      </button>
+    </form>
+
+    <!-- Hint area: suggested example queries and inline form error display -->
+    <div class="hint" aria-live="polite">
+      <!-- Chips list: quick-fill buttons to populate the search input -->
+      <div class="chips" role="list">
+        <button class="chip" type="button" role="listitem" (click)="useChip('What is Esophageal cancer?')">
+          What is Esophageal cancer?
+        </button>
+
+        <button class="chip" type="button" role="listitem"
+          (click)="useChip('What factors contribute to Sinusitis? what tests can confirm the presence of this disease?')">
+          What factors contribute to Sinusitis? what tests can confirm the presence of this disease?
+        </button>
+
+        <button class="chip" type="button" role="listitem"
+          (click)="useChip('What are the primary causes and risk factors for Alopecia?')">
+          What are the primary causes and risk factors for Alopecia?
+        </button>
+      </div>
+
+      <!-- Inline form error: shown when validation or request errors occur -->
+      <div *ngIf="error" class="form-error" role="alert">{{ error }}</div>
+    </div>
+
+    <!-- Additional error region for screen readers when no results are present -->
+    <div *ngIf="error && !results" role="alert" aria-live="assertive"></div>
+
+    <!-- Results section: rendered only when results are available -->
+    <section *ngIf="results" class="results-wrap" aria-labelledby="results-heading">
+      <div class="row single-row">
+        <!-- Results header: displays disease name when present -->
+        <div class="results-header">
+          <h3 *ngIf="results?.disease_name" class="disease-name">{{ results?.disease_name }}</h3>
+        </div>
+
+        <!-- Button to open SQL modal showing the underlying query -->
+        <button class="sql-icon" aria-label="Show SQL command" (click)="toggleSqlModal(true)">
+          <span class="sql-icon-text" title="Click to view Query">View query</span>
+        </button>
+      </div>
+
+      <!-- Results grid: left column for summaries, right column for images -->
+      <div class="results-grid" [class.has-images]="(results?.related_images?.length ?? 0) > 0">
+        <div class="results-left">
+
+          <!-- PDF summary block: shows extracted summary and source metadata -->
+          <div *ngIf="hasPdfSummary()" class="summary-block pdf-summary">
+            <p class="summary-text">{{ results?.summary_pdf?.summary }}</p>
+
+            <!-- Source attribution for the PDF summary -->
+            <div *ngIf="results?.summary_pdf?.source" class="summary-source">
+              <span class="summary-source-label">Source:</span>
+              <span class="summary-source-value">{{ results?.summary_pdf?.source }}</span>
+            </div>
+
+            <!-- Page numbers from the PDF if available -->
+            <div *ngIf="summaryPdfPages?.length" class="summary-pages">
+              <span class="summary-source-label">Pages:</span>
+              <span class="summary-source-value">{{ summaryPdfPages.join(', ') }}</span>
+            </div>
+          </div>
+
+          <!-- CSV/structured summary block: supports headings, numbered lists, or plain lines -->
+          <div *ngIf="hasCsvSummary()" class="summary-block summary-csv-block">
+            <h4 *ngIf="parsedSummaryCsv.heading" class="summary-text" style="margin-bottom:8px;">
+              {{ parsedSummaryCsv.heading }}
+            </h4>
+
+            <!-- Numbered list rendering when CSV indicates numbering -->
+            <ol *ngIf="parsedSummaryCsv.items.length && parsedSummaryCsv.numbered" class="summary-csv-list numbered">
+              <li *ngFor="let item of parsedSummaryCsv.items; trackBy: trackByIndex"
+                class="summary-csv-item summary-csv-desc">
+                {{ item }}
+              </li>
+            </ol>
+
+            <!-- Plain list rendering when not numbered -->
+            <div *ngIf="parsedSummaryCsv.items.length && !parsedSummaryCsv.numbered" class="summary-points-plain">
+              <div *ngFor="let item of parsedSummaryCsv.items; trackBy: trackByIndex" class="summary-point-line">
+                {{ item }}
+              </div>
+            </div>
+
+            <!-- Fallbacks: raw CSV string or raw CSV lines if parsing produced no items -->
+            <div *ngIf="!parsedSummaryCsv.items.length">
+              <div *ngIf="rawSummaryCsvString && rawSummaryCsvString.length">
+                <p class="summary-text">{{ rawSummaryCsvString }}</p>
+              </div>
+
+              <div *ngIf="(!rawSummaryCsvString || !rawSummaryCsvString.length) && rawSummaryCsvLines.length"
+                class="summary-points-plain">
+                <div *ngFor="let line of rawSummaryCsvLines; trackBy: trackByIndex" class="summary-point-line">
+                  {{ line }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Source attribution for the CSV summary -->
+            <div *ngIf="results?.summary_csv?.source" class="summary-source">
+              <span class="summary-source-label">Source:</span>
+              <span class="summary-source-value">{{ results?.summary_csv?.source }}</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right column: related images or a placeholder when none are available -->
+        <aside class="results-right" [attr.aria-hidden]="(results?.related_images?.length ?? 0) === 0">
+          <!-- If images exist, render each with caption and accessible alt text -->
+          <ng-container *ngIf="(results?.related_images?.length ?? 0) > 0; else placeholderImage">
+            <div *ngFor="let img of results?.related_images ?? []; let i = index" class="image-wrap">
+              <img
+                [src]="img?.disease_image_base64 ? ('data:image/jpeg;base64,' + img.disease_image_base64) : '/assets/images/No_image_available.png'"
+                [alt]="img?.caption_text || ('Related image ' + (i + 1))" class="result-image" loading="lazy" />
+              <div *ngIf="img?.caption_text" class="image-caption">{{ img?.caption_text }}</div>
+            </div>
+          </ng-container>
+
+          <!-- Placeholder image template used when no related images are returned -->
+          <ng-template #placeholderImage>
+            <div class="image-wrap">
+              <img src="/assets/images/No_image_available.png" alt="No related images available" class="result-image"
+                loading="lazy" />
+            </div>
+          </ng-template>
+        </aside>
+
+      </div>
+    </section>
+
+    <!-- Modal backdrop: click to close SQL modal -->
+    <div class="sql-modal-backdrop" *ngIf="showSqlModal" (click)="toggleSqlModal(false)"></div>
+
+    <!-- SQL modal: shows the generated query and actions (download, copy, close) -->
+    <div class="sql-modal" *ngIf="showSqlModal" role="dialog" aria-modal="true" aria-labelledby="sql-title">
+      <div class="sql-modal-header">
+        <h3 id="sql-title">Query
+        </h3>
+
+        <!-- Modal action toolbar: download, copy, and close controls -->
+        <div class="sql-modal-actions" role="toolbar" aria-label="Modal actions">
+          <button class="icon-btn" title="Download SQL" (click)="downloadSql()" aria-label="Download SQL">
+            <span class="material-icons">download</span>
+          </button>
+
+          <button class="icon-btn" title="Copy SQL" (click)="copySql()" aria-label="Copy SQL">
+            <span class="material-icons">content_copy</span>
+          </button>
+
+          <button class="icon-btn close-btn" title="Close" (click)="toggleSqlModal(false)" aria-label="Close">
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Modal body: preformatted SQL content or fallback message -->
+      <div class="sql-modal-body">
+        <pre class="sql-content">{{ sqlCommand?.trim() || 'No SQL command returned.' }}</pre>
+      </div>
+
+      <!-- Modal footer: feedback for copy action -->
+      <div class="sql-modal-footer">
+        <div class="copy-feedback" *ngIf="showCopySuccess">Copied to clipboard</div>
+      </div>
+    </div>
+
+    <!-- Loader overlay: shown while async requests are in progress -->
+    <div class="loader-overlay" *ngIf="loading" aria-hidden="false">
+      <div class="loader">
+        <div class="spinner"></div>
+        <div class="loader-text">Loading results…</div>
+      </div>
+    </div>
+  </section>
+</main>
