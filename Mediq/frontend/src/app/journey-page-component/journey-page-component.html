@@ -1,0 +1,106 @@
+<header class="header">
+  <div class="header__logo">
+    <h1 class="logo__text" style="cursor:pointer;">
+       <!-- Logo image inside heading for branding -->
+       <img src="/assets/images/MedIQ_icon.svg" alt="logo" style="cursor:pointer;" />
+    </h1>
+  </div>
+</header>
+
+<div class="app">
+  <main class="container">
+    <!-- Hero Section: Introductory message about Dr. Maya -->
+    <section class="section section-hero">
+      <div class="section-content">
+        <h2 class="section-title">Clinical Researcher on a Mission</h2>
+        <p class="section-body" style="color:#79747E">
+          <!-- Narrative introducing the persona and problem context -->
+          Meet Dr. Maya, a Clinical Researcher. Maya works in a fast-paced hospital environment where every second counts. She needs quick, reliable access to medical knowledge—disease definitions, diagnostic protocols, treatment guidelines—without flipping through hundreds of pages or scattered PDFs.
+        </p>
+      </div>
+
+      <div class="section-art" aria-hidden="true">
+        <!-- Supporting illustration for hero section -->
+        <img class="section-art__img" src="assets/images/1pana.png" alt="Illustration: Meet Alex" width="391" height="390" />
+      </div>
+    </section>
+
+
+    <!-- Problem Statement Section: Highlighting current challenges -->
+    <section class="section section-copy">
+      <div class="section-art">
+        <!-- Illustration reinforcing the problem -->
+        <img class="section-art__img" src="assets/images/2pana.png" alt="Forecasting illustration" width="480" height="360" />
+      </div>
+
+      <div class="section-content">
+        <h2 class="section-title">Fragmented Knowledge, Slower Care</h2>
+        <p class="section-body" style="color:#79747E">
+          <!-- Explains inefficiencies in current medical knowledge access -->
+         Today, accessing medical knowledge is cumbersome. Doctors and researchers rely on fragmented sources—manual searches in PDFs, outdated portals, and keyword-based systems that fail to capture context. This slows down diagnosis, increases cognitive load, and impacts patient care.
+        </p>
+      </div>
+    </section>
+
+    <!-- Solution Section: Introducing the AI-powered assistant -->
+    <section class="section section-feature">
+      <div class="section-content">
+        <h2 class="section-title">Clinical Intelligence, powered by RAG and AlloyDB</h2>
+        <p class="section-body" style="color:#79747E">
+          <!-- Description of the solution and its benefits -->
+          Introducing the AI-Powered Clinical Knowledge Assistant—a RAG-based application built for healthcare professionals. It combines structured medical data with unstructured content from comprehensive medical encyclopedias, enabling natural language queries and delivering accurate, context-rich answers instantly.
+        </p>
+        <br><br>
+
+        <!-- Call-to-action button leading to demo -->
+        <button class="cta-btn cta-primary" type="button" (click)="navigateDemo()"
+          style="background-color:#6750A4;color:white;font-family: Roboto">Experience the Demo</button>
+      </div>
+
+      <div class="demo-card">
+        <div class="demo-frame">
+          <!-- Preview image of the solution -->
+          <img class="demo-image" src="assets/images/3pana.png" alt="Solution preview" width="912" height="200" />
+        </div>
+      </div>
+    </section>
+
+
+    <!-- User Journey Section: Storytelling through Dr. Maya’s experience -->
+    <section class="section section-center">
+      <h2 class="section-title center" style="text-align: center;">The Journey of Emma</h2>
+      <p class="section-body center" style="text-align: center;color:#79747E">
+        <!-- Narrative walkthrough of how the system works in practice -->
+        Now, let’s step into Dr. Maya’s world. Her journey is effortless: she types ‘What are the diagnostic tests for Neutropenia disease?’—and AI does the rest. Behind the scenes, the system retrieves relevant sections from the medical encyclopedia, combines them with structured data, and summarizes the answer. Maya gets precise, actionable insights in seconds.
+      </p>
+
+      <div class="info-panel info-panel--center" aria-hidden="true">
+        <div class="info-panel__content">
+          <!-- Visual strip showing journey steps -->
+          <img src="assets/images/4pana.png" alt="Journey steps strip" width="745" height="102" />
+        </div>
+      </div>
+    </section>
+
+
+    <!-- Exploration Section: Encouraging users to try the application -->
+    <section class="section section-center" style="margin-bottom:30px">
+      <h2 class="section-title center" style="text-align: center;">Explore the Application</h2>
+      <p class="section-body center" style="text-align: center;color:#79747E">
+        <!-- Invitation to engage with the demo -->
+        LLet’s explore the application now. You’ll see an intuitive interface where natural language queries meet RAG-powered intelligence. From disease definitions to treatment protocols, this is clinical decision support reimagined.
+      </p>
+
+      <div class="demo-card demo-card--lg">
+        <div class="demo-frame demo-frame--blur">
+          <!-- Blurred background preview of the app -->
+          <img class="demo-bg" src="assets/images/5pana.png" alt="App preview blurred background" width="1154" height="721" />
+
+          <!-- Centered call-to-action button -->
+          <button class="cta-btn cta-primary cta-centered" (click)="navigateDemo()" type="button"
+            style="background-color:#6750A4;color:white;font-family: Roboto">Experience the Demo</button>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
