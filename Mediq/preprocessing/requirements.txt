@@ -1,0 +1,26 @@
+# Core runtime
+sqlalchemy>=2.0
+pg8000>=1.31
+google-cloud-alloydb-connector[pg8000]>=1.3.0
+pandas>=2.1
+numpy>=1.26
+
+# LLM / Vertex AI
+google-cloud-aiplatform>=1.63.0
+
+# LangChain utilities for chunking
+langchain>=0.3.0
+langchain-text-splitters>=0.3.0
+
+# PDF & images
+pypdf>=4.0.0
+pymupdf>=1.24.0
+pillow>=10.0.0
+
+# Kaggle Croissant loader
+mlcroissant>=1.0.0
+kagglehub>=0.3.4
+
+# TQDM & joblib (optional parallelism)
+tqdm>=4.66
+joblib>=1.3
