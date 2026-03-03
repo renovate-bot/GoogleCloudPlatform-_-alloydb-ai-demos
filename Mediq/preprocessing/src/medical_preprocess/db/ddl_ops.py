@@ -40,7 +40,7 @@ def create_disease_info_merged(
             ddi.chunk_page_no AS pages,
             ddi.chunk_embedding,
             dti.test_name,
-            dii.disease_name_embedding,
+            dti.disease_name_embedding,
             dii.caption_text,
             dii.disease_image_base64
         FROM {fq_details} AS ddi
