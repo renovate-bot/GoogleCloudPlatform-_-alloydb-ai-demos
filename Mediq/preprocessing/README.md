@@ -28,7 +28,7 @@ pip install -r requirements.txt
 2. **Configure environment variables** (copy and edit):
 
 cp .env.example .env
-# then edit .env with your values
+- then edit .env with your values
 
 3. **Authenticate to GCP**
 
