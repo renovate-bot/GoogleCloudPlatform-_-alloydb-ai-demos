@@ -1,7 +1,21 @@
--- TVF Creation for extracting relevant information from chunks, tests and images based on user query
+-- ============================================================
+--  FUNCTION: search_medical_info
+--  PURPOSE:
+--     Extract relevant medical info (chunks, tests, images)
+--     and generate AI summaries based on user query.
+--
+--  RETURNS:
+--     - disease_name
+--     - summary_pdf (summary + pages from PDF)
+--     - summary_csv (numbered list from CSV)
+--     - details_chunks[]
+--     - tests_details[]
+--     - related_images[]
+-- ============================================================
+
 CREATE OR REPLACE FUNCTION alloydb_usecase.search_medical_info(
   user_query TEXT,
-  embedding_distance_threshold FLOAT DEFAULT 0.3
+  embedding_distance_threshold FLOAT DEFAULT 0.35
 )
 RETURNS TABLE (
   disease_name   TEXT,
@@ -22,7 +36,7 @@ WITH qe AS (
 
 best AS (
   SELECT d.*
-  FROM alloydb_usecase.disease_info_merged d
+  FROM "alloydb_usecase"."disease_info_merged" AS d
   CROSS JOIN qe
   WHERE
       lower(qe.user_query) LIKE '%' || lower(d.disease_name) || '%'
@@ -65,10 +79,10 @@ grouped AS (
         SELECT jsonb_agg(p ORDER BY p)
         FROM (
           SELECT DISTINCT (b2.pages - 30)::int AS p
-          FROM best b2
+          FROM best AS b2
           WHERE b2.disease_name = b.disease_name
             AND b2.pages IS NOT NULL
-        ) p
+        ) AS p
       ),
       '[]'::jsonb
     ) AS pages_json,
@@ -118,7 +132,7 @@ grouped AS (
     /* score to order diseases (best semantic match wins) */
     MIN(b.disease_name_embedding <=> qe.embed) AS best_score
 
-  FROM best b
+  FROM best AS b
   CROSS JOIN qe
   GROUP BY b.disease_name, qe.embed
 )
@@ -135,9 +149,9 @@ SELECT
         'User query: "' || qe.user_query || '"' || E'\n' ||
         'TASK: Write a natural-language summary of the disease details using ONLY the evidence provided below.' || E'\n' ||
         'STRICT RULES:' || E'\n' ||
-        '1) Use ONLY the text under EVIDENCE. Do NOT use outside medical knowledge. Do NOT guess or add missing facts.' || E'\n' ||
+        '1) Use ONLY the text and disease name under EVIDENCE. Do NOT use outside medical knowledge. Do NOT guess or add missing facts.' || E'\n' ||
         '2) If EVIDENCE does not contain enough information to answer the query OR If the query is strictly about tests, return NIL.' || E'\n' ||
-	'3) The query should either contain only disease names OR it should contain information along with disease names which is present in EVIDENCE' || E'\n' ||
+ '3) The query should either contain only disease names OR it should contain information along with disease names which is present in EVIDENCE' || E'\n' ||
         'EVIDENCE:' || E'\n' ||
         g.evidence_text
     ),'pages', g.pages_json) AS summary_pdf,
@@ -151,19 +165,21 @@ SELECT
         'User query: "' || qe.user_query || '"' || E'\n' ||
         'TASK: Write a numbered checklist of diagnostic tests using ONLY the test names provided below.' || E'\n' ||
         'STRICT RULES:' || E'\n' ||
-        '1) Use ONLY the text under TEST NAMES. Do NOT use outside medical knowledge. Do NOT guess test purpose, ranges, interpretation, or procedures.' || E'\n' ||
-	'2) The query should either contain only disease names OR it should specify medical tests/diagnostic tests/tests along with disease names' || E'\n' ||
-        '3) If the query is about disease info other than tests, return NIL.' || E'\n' ||
-	'4) Return a numbered checklist of 50 most relevant tests from the list in the order of relevance(highest relevant at the top) with a preface.' || E'\n' ||
+        '1) Use ONLY the text under TEST NAMES and disease name under DISEASE NAME. Do NOT use outside medical knowledge. Do NOT guess test purpose, ranges, interpretation, or procedures.' || E'\n' ||
+ '2) Consider the query to be about tests if it contains any of these terms (case-insensitive): "test", "tests", "diagnostic test", "diagnostic tests", "medical test", "medical tests" or any other synonyms of these terms. Treat singular/plural as equivalent.' || E'\n' ||
+ '3) The query should either contain only disease name OR it should specify medical tests/diagnostic tests/tests along with disease name' || E'\n' ||
+        '4) If the query is about disease info other than tests, return NIL.' || E'\n' ||
+ '5) Return a numbered checklist of 50 most relevant tests from the list in the order of relevance(highest relevant at the top) with a preface ALWAYS but DO NOT include the word "Preface". Preface should end with a ":" .'|| E'\n' ||
         'TEST NAMES:' || E'\n' ||
-        g.tests_text
-    )) AS summary_csv,
+        g.tests_text || E'\n' ||'DISEASE NAME: '|| E'\n' || g.disease_name
+    ))
+    AS summary_csv,
 
   g.details_chunks,
   g.tests_details,
   g.related_images
 
-FROM grouped g
+FROM grouped AS g
 CROSS JOIN qe
 ORDER BY g.name_hit DESC, g.best_score ASC NULLS LAST, g.disease_name;
 $$;

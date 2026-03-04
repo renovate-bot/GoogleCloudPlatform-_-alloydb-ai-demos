@@ -25,10 +25,9 @@ source .venv/bin/activate
 pip install -r requirements.txt
 
 
-2. **Configure environment variables** (copy and edit):
+2. **Configure environment variables** :
 
-cp .env.example .env
-# then edit .env with your values
+- Create a .env file with necessary configurations
 
 3. **Authenticate to GCP**
 
