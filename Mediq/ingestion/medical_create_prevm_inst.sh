@@ -50,7 +50,7 @@ sleep 30
 echo "Checking connectivity to AlloyDB from VM..."
 
 # Copy files to VM
-SCRIPT_FILES=("medical_config.sh" "medical_create_wrapper_ddl.sh" "medical_create_table.sql")
+SCRIPT_FILES=("medical_config.sh" "medical_create_pre_wrapper_ddl.sh" "medical_create_presql.sql")
 #USERNAME="deepak_kumar214e17"
 TGT_PATH="/home/${USERNAME}/"
 SRC_PATH="$SRC_MED"
@@ -85,7 +85,7 @@ export ALLOYDB_IP
 
 # Execute wrapper script on VM
 echo "Executing DDL wrapper script on VM..."
-gcloud compute ssh "${INSTANCE_NAME}" --zone="${ZONE_NAME}" --command="bash ${TGT_PATH}medical_create_wrapper_ddl.sh \"${ALLOYDB_IP}\""
+gcloud compute ssh "${INSTANCE_NAME}" --zone="${ZONE_NAME}" --command="bash ${TGT_PATH}medical_create_pre_wrapper_ddl.sh \"${ALLOYDB_IP}\""
 
 if [ $? -eq 0 ]; then
     echo "DDL created successfully in AlloyDB."

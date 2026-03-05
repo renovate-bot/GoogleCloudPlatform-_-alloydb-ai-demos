@@ -1,9 +1,19 @@
 #!/bin/bash
-
-# Updated script to create VM, ensure AlloyDB connectivity, and run DDL
-source ./medical_config.sh
+# -----------------------------------------------------------------------------
+# Script Name : forecast_create_vm_inst.sh
+# Purpose     : Create (or reuse) a Compute Engine VM, ensure network access
+#               to AlloyDB (TCP 5432), copy forecast DDL scripts to the VM, and
+#               execute the wrapper script that applies DDL to AlloyDB.
+#
+# Prerequisites:
+#   - gcloud CLI installed and authenticated (gcloud auth login or ADC)
+#   - Roles: Compute Admin (roles/compute.admin) and ability to create firewall rules
+#   - VPC routing allows VM-to-AlloyDB connectivity (Private IP / peering / PSC)
+#   - The source files exist at SRC_PATH on the local machine running this script
+# -----------------------------------------------------------------------------
+source ./multimodel_config.sh
 echo "Creating or verifying VM instance: $INSTANCE_NAME"
-
+echo $SRC_MULTIMODEL
 gcloud config set account ${ACCOUNT}
 gcloud config set project ${PROJECT_ID}
 
@@ -32,6 +42,7 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+# ----------------------- Firewall for AlloyDB Access --------------------------
 echo "Ensuring firewall rule for AlloyDB connectivity..."
 gcloud compute firewall-rules describe allow-alloydb --format='get(name)' 2>/dev/null
 if [ $? -ne 0 ]; then
@@ -41,6 +52,7 @@ if [ $? -ne 0 ]; then
         --source-tags=${TAG}
 fi
 
+# ------------------------------ VM Preparation --------------------------------
 echo "Waiting for VM and AlloyDB to be ready..."
 gcloud compute ssh "${INSTANCE_NAME}" --zone="${ZONE_NAME}" --command="sudo apt-get update && sudo apt-get install -y netcat"
 
@@ -49,11 +61,11 @@ sleep 30
 # Check connectivity from VM to AlloyDB
 echo "Checking connectivity to AlloyDB from VM..."
 
-# Copy files to VM
-SCRIPT_FILES=("medical_config.sh" "medical_create_wrapper_ddl.sh" "medical_create_table.sql")
-#USERNAME="deepak_kumar214e17"
+# ------------------------------ Copy DDL Files --------------------------------
+# Forecast DDL scripts to be executed on the VM.
+SCRIPT_FILES=("multimodel_config.sh" "multimodel_create_ddl.sh" "multimodel_create_table.sql")
 TGT_PATH="/home/${USERNAME}/"
-SRC_PATH="$SRC_MED"
+SRC_PATH="$SRC_MULTIMODEL"
 
 for FILE in "${SCRIPT_FILES[@]}"; do
     echo "Copying $SRC_PATH$FILE"
@@ -83,9 +95,9 @@ echo "AlloyDB Primary Instance IP: ${ALLOYDB_IP}"
 export ALLOYDB_IP
 ##############
 
-# Execute wrapper script on VM
+# --------------------------- Execute DDL Wrapper ------------------------------
 echo "Executing DDL wrapper script on VM..."
-gcloud compute ssh "${INSTANCE_NAME}" --zone="${ZONE_NAME}" --command="bash ${TGT_PATH}medical_create_wrapper_ddl.sh \"${ALLOYDB_IP}\""
+gcloud compute ssh "${INSTANCE_NAME}" --zone="${ZONE_NAME}" --command="bash ${TGT_PATH}multimodel_create_ddl.sh \"${ALLOYDB_IP}\""
 
 if [ $? -eq 0 ]; then
     echo "DDL created successfully in AlloyDB."
@@ -93,3 +105,6 @@ else
     echo "Error creating DDL in AlloyDB. Exiting."
     exit 1
 fi
+
+
+echo "All done."
