@@ -8,9 +8,8 @@ import { RouterOutlet, Router } from '@angular/router';
   styleUrl: './journey-page-component.scss',
 })
 export class JourneyPageComponent {
-    constructor(private router: Router) {}
+  constructor(private router: Router) { }
   navigateDemo() {
-  debugger;
-  this.router.navigateByUrl('/search');
+    this.router.navigateByUrl('/search');
   }
 }

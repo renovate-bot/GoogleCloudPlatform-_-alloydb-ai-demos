@@ -3,8 +3,8 @@
   <!-- Logo container: clickable area to refresh or navigate home -->
   <div class="header__logo" (click)="refresh()">
     <!-- Site title and logo image; cursor pointer indicates interactivity -->
-    <h1 class="logo__text" style="cursor:pointer;">
-      <img src="/assets/images/MedIQ_icon.svg" alt="logo" style="cursor:pointer;" />
+    <h1 class="logo__text">
+      <img src="/assets/images/MedIQ_icon.svg" alt="logo"  />
     </h1>
   </div>
 
@@ -87,7 +87,10 @@
             <!-- Source attribution for the PDF summary -->
             <div *ngIf="results?.summary_pdf?.source" class="summary-source">
               <span class="summary-source-label">Source:</span>
-              <span class="summary-source-value">{{ results?.summary_pdf?.source }}</span>
+              <span class="summary-source-value">
+                <a href="https://www.kaggle.com/datasets/veeramallavijaigopal/the-gale-of-encyclopedia-of-medicine/data"
+                  target="_blank">Medical Encyclopedia PDF Document</a>
+              </span>
             </div>
 
             <!-- Page numbers from the PDF if available -->
@@ -135,7 +138,9 @@
             <!-- Source attribution for the CSV summary -->
             <div *ngIf="results?.summary_csv?.source" class="summary-source">
               <span class="summary-source-label">Source:</span>
-              <span class="summary-source-value">{{ results?.summary_csv?.source }}</span>
+              <span class="summary-source-value">
+                <a href="https://www.kaggle.com/datasets/montassarba/mimic-iv-clinical-database-demo-2-2/data" target="_blank">Disease Test Confirmation CSV File</a>
+              </span>
             </div>
           </div>
 
@@ -192,7 +197,8 @@
 
       <!-- Modal body: preformatted SQL content or fallback message -->
       <div class="sql-modal-body">
-        <pre class="sql-content">{{ sqlCommand?.trim() || 'No SQL command returned.' }}</pre>
+        <pre
+          class="sql-content">{{ sqlCommand?.trim() || 'No SQL command returned.' }}<br/><br/>{{ sqlFunctionCommand?.trim() || 'No SQL command returned.' }}</pre>
       </div>
 
       <!-- Modal footer: feedback for copy action -->

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 
 export interface SummaryObj {
   summary?: string | null;
@@ -33,7 +34,7 @@ export interface ApiResponse {
   providedIn: 'root',
 })
 export class MedCare {
-  private apinewUrl = 'https://medical-search-service-888916268766.asia-south1.run.app/medIqSearch';
+  private apiUrl = environment.apiBaseUrl;
 
   constructor(private http: HttpClient) {}
 
@@ -46,7 +47,7 @@ export class MedCare {
     const body = { question: trimmed };
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
 
-    return this.http.post<ApiResponse>(this.apinewUrl, body, { headers }).pipe(
+    return this.http.post<ApiResponse>(this.apiUrl, body, { headers }).pipe(
       map((resp) => ({
         sql_command: resp?.sql_command ?? null,
         details: Array.isArray(resp?.details) ? resp.details : resp?.details ? [resp.details] : null,
