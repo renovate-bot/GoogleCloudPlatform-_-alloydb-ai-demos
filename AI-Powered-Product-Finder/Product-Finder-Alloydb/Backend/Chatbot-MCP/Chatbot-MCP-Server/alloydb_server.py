@@ -14,7 +14,8 @@ from fastmcp import FastMCP
 # --- FastMCP Server and Tool Definitions ---
 
 mcp = FastMCP("AlloyDB Retail Recommendation Server")
-
+alloydb_client = alloydb_conn.AlloyDBClient(INSTANCE_URI,DB_USER,DB_PASSWORD,DB_NAME)
+engine = alloydb_client.create_engine()
 
 
 @mcp.tool()
@@ -30,9 +31,6 @@ def retrieve_neighbors_from_alloydb(question: str) -> str:
             A JSON-formatted string (list of dict records) for the top 10 matches
     """
     try:
-
-        alloydb_client = alloydb_conn.AlloyDBClient(INSTANCE_URI,DB_USER,DB_PASSWORD,DB_NAME)
-        engine = alloydb_client.create_engine()
         with engine.connect() as conn:
             # This uses AlloyDB AI's built-in function to convert natural language to SQL
             query = sqlalchemy.text(f"""
