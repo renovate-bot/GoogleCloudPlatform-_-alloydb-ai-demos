@@ -29,7 +29,6 @@ def retrieve_neighbors_from_alloydb(question: str) -> str:
         str:
             A JSON-formatted string (list of dict records) for the top 10 matches
     """
-    print(f"\n--- TOOL CALLED: retrieve_neighbors_from_alloydb for question: '{question}' ---")
     try:
 
         alloydb_client = alloydb_conn.AlloyDBClient(INSTANCE_URI,DB_USER,DB_PASSWORD,DB_NAME)
@@ -64,17 +63,14 @@ def retrieve_neighbors_from_alloydb(question: str) -> str:
             LIMIT 5;""")
             result = conn.execute(query, {"question":question})
             df = pd.DataFrame(result.fetchall(), columns=result.keys())
-            print("Data retrieved successfully.")
             if df.empty:
                 return "No data was found for this question."
             return df.to_json(orient="records")
     except Exception as e:
-        print(f"Error in tool execution: {e}")
         return f"An error occurred while querying the database: {e}"
 
 
 if __name__ == "__main__":
     # For Cloud Run, it's important to listen on '0.0.0.0' and use the PORT environment variable.
     port = int(os.environ.get("PORT", 5005))
-    print(f"Starting MCP server on port {port}")
     mcp.run(transport="http", host="0.0.0.0", port=port)
