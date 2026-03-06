@@ -72,7 +72,7 @@ script/
 - PostgreSQL (AlloyDB **or** Cloud SQL Postgres) + `pgvector` store facts, forecasts & vectors
 - Server-side embeddings using Vertex AI text-embeddings for product similarity & substitutions
 - (Optional) Vertex AI forecasting (Demand) + rules-based or service-level policies for reorder
-- Notifications via email/Slack/Pub/Sub; files to GCS (PO exports, reports)
+
 
 **Core tables** (schema example)
 ```
@@ -311,5 +311,6 @@ Host the build (Cloud Storage + CDN, Firebase Hosting, or NGINX). Set `environme
 - All SQL is parameterized. The backend returns an optional `sql_query` with responses for transparency/debugging.
 
 ---
+
 
 
