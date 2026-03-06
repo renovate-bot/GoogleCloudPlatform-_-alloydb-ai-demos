@@ -1,0 +1,252 @@
+<!-- dashboard.html -->
+<header class="header">
+  <div class="header__logo" (click)="goToHome()">
+    <h1 class="logo__text" style="cursor:pointer;">
+      <img src="/assets/images/Multimodal_Video_Incident_Identification.svg" alt="logo" style="cursor:pointer;" />
+    </h1>
+  </div>
+  <div class="header__help">
+    <button class="help-btn" type="button" aria-label="Open user guide" (click)="openUserGuide()">
+      <span class="material-icons" aria-hidden="true" title="User Guide">help_outline</span>
+    </button>
+  </div>
+</header>
+
+<main class="content" role="main">
+  <section class="hero" aria-labelledby="hero-title">
+    <h1 id="hero-title" class="title">Ask Video Analyzer</h1>
+    <form class="search" [class.has-thumb]="!!uploadedImagePreview" (submit)="submitSearch($event)" novalidate>
+      <div class="search-row">
+        <button *ngIf="uploadedImagePreview" type="button" class="thumb-btn" (click)="openImageModal()"
+          title="View uploaded image" aria-label="View uploaded image">
+          <img [src]="uploadedImagePreview" alt="uploaded thumbnail" class="thumb-img" />
+        </button>
+
+        <input id="q" name="q" [(ngModel)]="query" #qEl type="search"
+          [placeholder]="uploadedImagePreview ? 'Image selected — search will use the image' : 'Eg: show me some videos related to motorcycle collision'"
+          autocomplete="off" [readonly]="!!uploadedImagePreview" aria-required="false" [disabled]="loading"
+          (input)="onQueryInput()" style="font-family:Roboto;" />
+
+        <input #imageInput type="file" accept="image/*" (change)="onImageSelected($event)" style="display:none"
+          aria-hidden="true" />
+
+        <button id="cameraBtn" type="button" class="icon-btn camera-btn" aria-label="Upload image"
+          (click)="openImageModal()" [disabled]="loading" title="Search with image (optional)">
+          <span class="material-icons" aria-hidden="true">image_search</span>
+        </button>
+
+        <span class="icon-separator" aria-hidden="true">|</span>
+
+        <button class="search-btn" aria-label="Search" type="submit" [disabled]="!sendEnabled || loading" aria-label="Send">
+          <span class="material-icons" aria-hidden="true">send</span>
+        </button>
+
+      </div>
+    </form>
+
+
+
+
+
+    <div *ngIf="uploadedImageName && allowRemove" class="uploaded-row" role="status" aria-live="polite">
+      <div class="uploaded-name">Uploaded image: {{ uploadedImageName }}</div>
+      <button type="button" class="remove-image-btn" (click)="removeImage()" aria-label="Remove uploaded image"
+        title="Remove uploaded image">Remove</button>
+    </div>
+
+    <div class="search-controls" role="group" aria-label="Search controls">
+      <div class="controls-left" aria-hidden="true"></div>
+
+      <div class="controls-right">
+        <div class="category-field">
+
+          <select class="category-select" [(ngModel)]="selectedCategory" (ngModelChange)="onCategoryChange($event)"
+            [disabled]="!categoriesEnabled || loading"
+            [class.block-pointer]="!categoriesEnabled || loading">
+            <option value="" disabled selected>Select Category
+            <option value="" >All Available Categories</option>
+            <option *ngFor="let c of categories" [value]="c.value">
+              {{ c.label }}
+            </option>
+          </select>
+        </div>
+
+        <div class="duration-wrapper" style="position:relative;">
+
+          <button class="duration-newselect" type="button" (click)="toggleDurationPopup()" [disabled]="!durationEnabled || loading" [class.block-pointer]="!durationEnabled || loading"
+            style="font-family:Roboto;color:#49454F">
+            Duration: {{ userSelectedDuration ? (duration + 's') : '—' }}
+          </button>
+
+
+          <div *ngIf="showDurationPopup" class="duration-popup" role="dialog" aria-modal="true"
+            (click)="$event.stopPropagation()">
+            <div class="duration-title">Select duration (seconds)</div>
+
+
+
+            <input #durationRange class="duration-range" type="range" [min]="selectedCategoryMin" [max]="selectedCategoryMax"
+              [disabled]="!durationEnabled || loading" [class.block-pointer]="!durationEnabled || loading" (input)="setDurationFromSlider($event)">
+
+
+
+            <div class="duration-values">
+              <span>{{ selectedCategoryMin }}s</span>
+              <span>{{pendingDuration ?? duration}}s</span>
+              <span>{{ selectedCategoryMax }}s</span>
+            </div>
+            <div class="duration-actions">
+              <button type="button" class="chip" (click)="applyCategoryDurationFilter()">Done</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="formError" class="form-error" role="alert" aria-live="assertive">
+      {{ formError }}
+    </div>
+
+    <div class="hint" aria-live="polite">
+      <div class="chips" role="list" style="font-family:Roboto">
+        <button class="chip" type="button" role="listitem"
+          (click)="setSampleQuery(`White motorcycles and red cars`)">
+          White motorcycles and red cars
+        </button>
+
+        <button class="chip" type="button" role="listitem"
+          (click)="setSampleQuery(`Intersections`)">
+          Intersections
+        </button>
+
+        <button class="chip" type="button" role="listitem"
+          (click)="setSampleQuery(`Night time recordings`)">
+          Night time recordings
+        </button>
+      </div>
+    </div>
+
+    <div class="results-wrap" *ngIf="results?.length || loading || noVideosMessage" style="margin-top:18px;">
+      <div class="results-header">
+        <h2 *ngIf="!loading" class="results-title">Videos related to <span class="Query-title">"{{ displayQueryTitle()
+            }}"</span></h2>
+
+        <button class="sql-icon" *ngIf="!loading && sqlQueryText" (click)="openSqlModal()" aria-label="Show query info"
+          title="Show SQL query">
+          <p>View query</p>
+        </button>
+      </div>
+
+      <div *ngIf="loading" class="loader-overlay" aria-live="polite" aria-busy="true">
+        <div class="loader" role="status" aria-label="Loading">
+          <div class="spinner" aria-hidden="true"></div>
+          <div style="font-size:14px; color:var(--Schemes-On-Surface-Variant);">Loading...</div>
+        </div>
+      </div>
+
+      <div class="results-grid" *ngIf="results?.length && !loading" [class.has-images]="true" style="margin-top:12px;">
+        <ng-container *ngFor="let v of results">
+          <div class="test-card" (click)="openPlayer(v)" role="button" tabindex="0" (keydown.enter)="openPlayer(v)">
+            <div class="media-wrap">
+              <video class="result-image" [attr.src]="v.public_url" muted preload="metadata" aria-hidden="true"></video>
+            </div>
+
+            <div class="filename" title="{{ v.filename?.split('/')?.pop() || v.public_url?.split('/')?.pop() }}">
+              {{ v.filename?.split('/')?.pop() || v.public_url?.split('/')?.pop() }}
+            </div>
+          </div>
+        </ng-container>
+      </div>
+
+      <div *ngIf="noVideosMessage && !loading" class="no-videos-message" role="status" aria-live="polite">
+        {{ noVideosMessage }}
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Image modal -->
+<div *ngIf="showImageModal" class="image-modal-backdrop" (click)="closeImageModal()">
+  <div class="image-modal" (click)="$event.stopPropagation()" role="dialog" aria-modal="true"
+    aria-labelledby="image-modal-title">
+    <div class="image-modal-header">
+      <h3 id="image-modal-title">Search with Image</h3>
+      <button class="icon-btn close-btn" (click)="closeImageModal()" aria-label="Close image dialog">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+
+    <div class="image-modal-body">
+      <div class="drop-area" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)">
+        <div class="drop-inner">
+          <div *ngIf="!uploadedImagePreview" class="drop-placeholder">
+            <p class="drop-title">Drag an image here or</p>
+            <button type="button" class="upload-file-btn" (click)="triggerImageInput()" aria-label="Upload file">
+              Upload File
+            </button>
+            <p class="drop-sub">Supported formats: JPG, PNG, GIF</p>
+          </div>
+
+          <div *ngIf="uploadedImagePreview" class="drop-preview">
+            <img [src]="uploadedImagePreview" alt="Selected image preview" />
+            <div class="preview-meta">
+              <div class="preview-name">{{ uploadedImageName }}</div>
+              <div class="preview-actions">
+                <button type="button" class="chip" (click)="removeImage()" *ngIf="allowRemove">Remove</button>
+                <button type="button" class="chip" (click)="closeImageModal()">Done</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SQL modal -->
+<div *ngIf="showSqlModal" class="sql-modal-backdrop" (click)="closeSqlModal()">
+  <div class="sql-modal" (click)="$event.stopPropagation()">
+    <div class="sql-modal-header">
+      <h3>Query<br />
+        <!-- <pre class="query_subtitle">query = ' {{query}} '</pre> -->
+      </h3>
+      <div class="sql-modal-actions">
+        <button class="icon-btn" title="Download SQL" (click)="downloadSql()" aria-label="Download SQL">
+          <span class="material-icons">download</span>
+        </button>
+
+        <button class="icon-btn" title="Copy SQL" (click)="copySql()" aria-label="Copy SQL">
+          <span class="material-icons">content_copy</span>
+        </button>
+        <button class="icon-btn close-btn" (click)="closeSqlModal()" aria-label="Close">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="sql-modal-body">
+      <pre class="sql-content">{{ sqlQueryText }}</pre>
+    </div>
+  </div>
+</div>
+
+<!-- Video player modal -->
+<div *ngIf="showPlayer" class="sql-modal-backdrop" (click)="closePlayer()">
+  <div class="sql-modal" style="width:min(880px,96%);" (click)="$event.stopPropagation()">
+    <div class="sql-modal-header">
+      <h3>{{ currentVideoTitle?.split('/')?.pop() }}</h3>
+      <div class="sql-modal-actions">
+        <button class="icon-btn close-btn" (click)="closePlayer()" aria-label="Close player">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="sql-modal-body" style="display:flex; align-items:center; justify-content:center;">
+      <video controls autoplay style="width:100%; max-height:60vh;">
+        <source [attr.src]="currentVideoUrl" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+    </div>
+  </div>
+</div>

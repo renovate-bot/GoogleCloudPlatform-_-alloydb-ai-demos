@@ -1,0 +1,11 @@
+runtime: nodejs20
+service: dotengagevideo-multimodal-demo
+instance_class: F4_1G
+
+
+env_variables:
+  NODE_ENV: production
+
+handlers:
+  - url: /.*
+    script: auto
