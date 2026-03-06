@@ -1,0 +1,113 @@
+<header class="header">
+  <div class="header__logo">
+    <!-- Logo section: clickable logo image inside header -->
+    <h1 class="logo__text" style="cursor:pointer;">
+      <img src="/assets/images/Multimodal_Video_Incident_Identification.svg" alt="logo" style="cursor:pointer;" />
+    </h1>
+  </div>
+</header>
+
+<div class="app">
+  <main class="container">
+
+    <section class="section section-hero">
+      <!-- Hero section: introduces Arjun and sets the narrative -->
+      <div class="section-content">
+        <h2 class="section-title">Meet Arjun – Data Scientist on a Mission</h2>
+        <p class="section-body" style="color:#79747E">
+          Meet Arjun, a Data Scientist working on autonomous vehicle safety models. Arjun needs curated video clips of
+          real-world highway incidents—motorbike crashes, lane-change collisions, and near-miss scenarios—to train and
+          fine-tune his models. His challenge? Hours of raw footage make finding relevant clips painfully slow.
+        </p>
+      </div>
+
+      <div class="section-art" aria-hidden="true">
+        <!-- Supporting illustration for hero section -->
+        <img class="section-art__img" src="assets/images/1pana.png" alt="Illustration: Meet Alex" width="391"
+          height="250" />
+      </div>
+    </section>
+
+
+    <section class="section section-copy">
+      <!-- Problem statement section: highlights challenges with video data -->
+      <div class="section-art">
+        <img class="section-art__img" src="assets/images/2pana.png" alt="Forecasting illustration" width="480"
+          height="360" />
+      </div>
+
+      <div class="section-content">
+        <h2 class="section-title">When Critical Clips Hide in
+          Endless Footage</h2>
+        <p class="section-body" style="color:#79747E">
+          Today, video data exploration is a bottleneck. Analysts and safety engineers manually scrub through endless
+          footage, wasting time and risking incomplete datasets. Keyword-based tagging often misses context, making it
+          hard to find specific scenarios like ‘motorbike accidents on highways.’ This slows innovation and increases
+          operational costs
+        </p>
+      </div>
+    </section>
+
+
+    <section class="section section-feature">
+      <!-- Solution section: introduces AI-powered video finder -->
+      <div class="section-content">
+        <h2 class="section-title">Video Intelligence, Powered by AI</h2>
+        <p class="section-body" style="color:#79747E">
+          Introducing the AI-Powered Highway Incident Video Finder—a web-based application that transforms video search. Powered by AlloyDB and multimodal vector search, it understands natural language queries and retrieves contextually accurate video segments instantly. No manual browsing, no guesswork—just precise results.
+        </p>
+        <br><br>
+        <!-- Call-to-action button to navigate demo -->
+        <button class="cta-btn cta-primary" type="button" (click)="navigateDemo()"
+          style="background-color:#6750A4;color:white;font-family: Roboto">Experience the Demo</button>
+      </div>
+
+      <div class="demo-card">
+        <!-- Demo preview image -->
+        <div class="demo-frame">
+          <img class="demo-image" src="assets/images/3pana.png" alt="Solution preview" width="912" height="200" />
+        </div>
+      </div>
+    </section>
+
+
+    <section class="section section-center">
+      <!-- User journey section: explains Arjun’s workflow with the app -->
+      <h2 class="section-title center" style="text-align: center;">The Journey of Arjun</h2>
+      <p class="section-body center" style="text-align: center;color:#79747E">
+        Introducing the AI-Powered Highway Incident Video Finder—a web-based application that transforms video search.
+        Powered by AlloyDB and multimodal vector search, it understands natural language queries and retrieves
+        contextually accurate video segments instantly. No manual browsing, no guesswork—just precise results.
+      </p>
+
+      <div class="info-panel info-panel--center" aria-hidden="true">
+        <!-- Visual strip showing journey steps -->
+        <div class="info-panel__content">
+          <img src="assets/images/4pana.png" alt="Journey steps strip" width="745" height="102" />
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-center">
+      <!-- Exploration section: invites user to explore the application -->
+      <h2 class="section-title center" style="text-align: center;">Explore the Application</h2>
+      <p class="section-body center" style="text-align: center;color:#79747E">
+        Now, let’s step into Arjun’s experience with the Highway Incident Video Finder. His workflow is effortless: he
+        logs in, types a query like ‘Show me motorbike accidents on highways,’ and AI takes over. The system processes
+        the query, performs multimodal vector search across hours of footage, and returns precise video clips in
+        seconds. No manual browsing, no wasted time—just curated, contextually accurate results ready for analysis or
+        model training.
+      </p>
+
+      <div class="demo-card demo-card--lg">
+        <!-- Blurred background preview with centered CTA -->
+        <div class="demo-frame demo-frame--blur">
+          <img class="demo-bg" src="assets/images/5pana.png" alt="App preview blurred background" width="1154"
+            height="721" />
+          <button class="cta-btn cta-primary cta-centered" (click)="navigateDemo()" type="button"
+            style="background-color:#6750A4;color:white; font-family: Roboto">Experience the Demo</button>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
